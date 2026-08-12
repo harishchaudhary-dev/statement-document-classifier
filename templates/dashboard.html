@@ -1,0 +1,2954 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-950">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="Statement Classifier Dashboard"
+    >
+
+    <title>Statement Classifier | Dashboard</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            400: "#818cf8",
+                            500: "#6366f1",
+                            600: "#4f46e5",
+                            700: "#4338ca"
+                        }
+                    }
+                }
+            }
+        };
+    </script>
+
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #020617;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 999px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+
+        .glass {
+            background: rgba(15, 23, 42, 0.72);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+        }
+
+        .sidebar-transition {
+            transition:
+                transform 0.25s ease,
+                width 0.25s ease;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.35s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+
+<body
+    class="
+        h-full
+        bg-slate-950
+        text-slate-100
+        antialiased
+        overflow-hidden
+    "
+>
+
+
+<!-- ================================================================
+     APPLICATION SHELL
+================================================================ -->
+
+<div class="flex h-screen">
+
+
+    <!-- ============================================================
+         MOBILE SIDEBAR OVERLAY
+    ============================================================= -->
+
+    <div
+        id="sidebarOverlay"
+        class="
+            fixed
+            inset-0
+            z-40
+            hidden
+            bg-black/60
+            backdrop-blur-sm
+            lg:hidden
+        "
+        onclick="toggleSidebar()"
+    ></div>
+
+
+    <!-- ============================================================
+         SIDEBAR
+    ============================================================= -->
+
+    <aside
+        id="sidebar"
+        class="
+            sidebar-transition
+            fixed
+            inset-y-0
+            left-0
+            z-50
+            flex
+            w-72
+            -translate-x-full
+            flex-col
+            border-r
+            border-slate-800
+            bg-slate-950
+            lg:static
+            lg:translate-x-0
+        "
+    >
+
+        <!-- Brand -->
+        <div
+            class="
+                flex
+                h-16
+                shrink-0
+                items-center
+                gap-3
+                border-b
+                border-slate-800
+                px-5
+            "
+        >
+
+            <div
+                class="
+                    flex
+                    h-9
+                    w-9
+                    shrink-0
+                    items-center
+                    justify-center
+                    rounded-xl
+                    bg-indigo-600
+                    shadow-lg
+                    shadow-indigo-600/20
+                "
+            >
+
+                <svg
+                    class="h-5 w-5 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M7 3h8l4 4v14H7a2 2 0 01-2-2V5a2 2 0 012-2z"
+                    />
+
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M15 3v5h5"
+                    />
+
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M9 13h6M9 17h6"
+                    />
+                </svg>
+
+            </div>
+
+            <div class="min-w-0">
+
+                <div
+                    class="
+                        truncate
+                        text-sm
+                        font-bold
+                        text-white
+                    "
+                >
+                    Statement Classifier
+                </div>
+
+                <div
+                    class="
+                        text-[11px]
+                        text-slate-500
+                    "
+                >
+                    Document intelligence
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Navigation -->
+        <nav
+            class="
+                flex-1
+                overflow-y-auto
+                px-3
+                py-5
+            "
+        >
+
+            <p
+                class="
+                    mb-2
+                    px-3
+                    text-[10px]
+                    font-semibold
+                    uppercase
+                    tracking-[0.16em]
+                    text-slate-500
+                "
+            >
+                Workspace
+            </p>
+
+
+            <!-- Dashboard -->
+            <a
+                href="/dashboard"
+                class="
+                    mb-1
+                    flex
+                    items-center
+                    gap-3
+                    rounded-xl
+                    border
+                    border-indigo-500/20
+                    bg-indigo-500/10
+                    px-3
+                    py-2.5
+                    text-sm
+                    font-medium
+                    text-indigo-300
+                "
+            >
+
+                <svg
+                    class="h-5 w-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M3 13h8V3H3v10zM13 21h8V11h-8v10zM13 3h8v4h-8V3zM3 17h8v4H3v-4z"
+                    />
+                </svg>
+
+                Dashboard
+
+            </a>
+
+
+            <!-- Statements -->
+            <a
+                href="#statements"
+                class="
+                    mb-1
+                    flex
+                    items-center
+                    gap-3
+                    rounded-xl
+                    px-3
+                    py-2.5
+                    text-sm
+                    font-medium
+                    text-slate-400
+                    transition
+                    hover:bg-slate-900
+                    hover:text-slate-200
+                "
+            >
+
+                <svg
+                    class="h-5 w-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M7 3h8l4 4v14H7a2 2 0 01-2-2V5a2 2 0 012-2z"
+                    />
+
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M15 3v5h5M9 13h6M9 17h4"
+                    />
+                </svg>
+
+                Statements
+
+            </a>
+
+
+            <!-- Upload -->
+            <a
+                href="#upload"
+                class="
+                    mb-1
+                    flex
+                    items-center
+                    gap-3
+                    rounded-xl
+                    px-3
+                    py-2.5
+                    text-sm
+                    font-medium
+                    text-slate-400
+                    transition
+                    hover:bg-slate-900
+                    hover:text-slate-200
+                "
+            >
+
+                <svg
+                    class="h-5 w-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 16V4m0 0l-4 4m4-4l4 4M5 20h14"
+                    />
+                </svg>
+
+                Upload statement
+
+            </a>
+
+
+            <p
+                class="
+                    mb-2
+                    mt-7
+                    px-3
+                    text-[10px]
+                    font-semibold
+                    uppercase
+                    tracking-[0.16em]
+                    text-slate-500
+                "
+            >
+                System
+            </p>
+
+
+            <!-- Gmail -->
+            <div
+                class="
+                    flex
+                    items-center
+                    gap-3
+                    rounded-xl
+                    px-3
+                    py-2.5
+                    text-sm
+                    text-slate-400
+                "
+            >
+
+                <svg
+                    class="h-5 w-5 text-rose-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M4 5h16v14H4V5z"
+                    />
+
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M4 7l8 6 8-6"
+                    />
+                </svg>
+
+                Gmail monitoring
+
+                <span
+                    class="
+                        ml-auto
+                        h-2
+                        w-2
+                        rounded-full
+                        bg-emerald-400
+                        shadow
+                        shadow-emerald-400/50
+                    "
+                    title="Monitoring"
+                ></span>
+
+            </div>
+
+        </nav>
+
+
+        <!-- Sidebar Footer -->
+        <div
+            class="
+                shrink-0
+                border-t
+                border-slate-800
+                p-3
+            "
+        >
+
+            <a
+                href="/auth/logout"
+                class="
+                    flex
+                    items-center
+                    gap-3
+                    rounded-xl
+                    px-3
+                    py-2.5
+                    text-sm
+                    font-medium
+                    text-slate-400
+                    transition
+                    hover:bg-red-500/10
+                    hover:text-red-400
+                "
+            >
+
+                <svg
+                    class="h-5 w-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M17 16l4-4m0 0l-4-4m4 4H7"
+                    />
+
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M3 4h8a2 2 0 012 2v2m0 8v2a2 2 0 01-2 2H3V4z"
+                    />
+                </svg>
+
+                Sign out
+
+            </a>
+
+        </div>
+
+    </aside>
+
+
+    <!-- ============================================================
+         MAIN AREA
+    ============================================================= -->
+
+    <div class="flex min-w-0 flex-1 flex-col">
+
+
+        <!-- ========================================================
+             TOP HEADER
+        ======================================================== -->
+
+        <header
+            class="
+                glass
+                z-30
+                flex
+                h-16
+                shrink-0
+                items-center
+                justify-between
+                border-b
+                border-slate-800
+                px-4
+                sm:px-6
+            "
+        >
+
+            <div class="flex items-center gap-3">
+
+                <!-- Mobile menu -->
+                <button
+                    type="button"
+                    onclick="toggleSidebar()"
+                    class="
+                        rounded-lg
+                        p-2
+                        text-slate-400
+                        hover:bg-slate-800
+                        hover:text-white
+                        lg:hidden
+                    "
+                    aria-label="Open navigation"
+                >
+
+                    <svg
+                        class="h-5 w-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M4 6h16M4 12h16M4 18h16"
+                        />
+                    </svg>
+
+                </button>
+
+
+                <div>
+
+                    <h1
+                        class="
+                            text-sm
+                            font-semibold
+                            text-white
+                            sm:text-base
+                        "
+                    >
+                        Dashboard
+                    </h1>
+
+                    <p
+                        class="
+                            hidden
+                            text-[11px]
+                            text-slate-500
+                            sm:block
+                        "
+                    >
+                        Statement processing overview
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- User -->
+            <div class="flex items-center gap-3">
+
+                <div
+                    class="
+                        hidden
+                        text-right
+                        sm:block
+                    "
+                >
+
+                    <p
+                        class="
+                            max-w-[220px]
+                            truncate
+                            text-xs
+                            font-medium
+                            text-slate-200
+                        "
+                    >
+                        {{ user.name }}
+                    </p>
+
+                    <p
+                        class="
+                            max-w-[220px]
+                            truncate
+                            text-[11px]
+                            text-slate-500
+                        "
+                    >
+                        {{ user.email }}
+                    </p>
+
+                </div>
+
+
+                {% if user.picture %}
+
+                <img
+                    src="{{ user.picture }}"
+                    alt="Profile"
+                    class="
+                        h-9
+                        w-9
+                        rounded-full
+                        border
+                        border-slate-700
+                        object-cover
+                    "
+                >
+
+                {% else %}
+
+                <div
+                    class="
+                        flex
+                        h-9
+                        w-9
+                        items-center
+                        justify-center
+                        rounded-full
+                        bg-indigo-600
+                        text-xs
+                        font-bold
+                        text-white
+                    "
+                >
+                    {{ user.name[:1] | upper }}
+                </div>
+
+                {% endif %}
+
+            </div>
+
+        </header>
+
+
+        <!-- ========================================================
+             CONTENT
+        ======================================================== -->
+
+        <main
+            class="
+                flex-1
+                overflow-y-auto
+                bg-slate-950
+            "
+        >
+
+            <div
+                class="
+                    mx-auto
+                    max-w-[1600px]
+                    space-y-6
+                    p-4
+                    sm:p-6
+                    lg:p-8
+                "
+            >
+
+
+                <!-- ==================================================
+                     PAGE INTRO
+                ================================================== -->
+
+                <section
+                    class="
+                        fade-in
+                        flex
+                        flex-col
+                        justify-between
+                        gap-4
+                        lg:flex-row
+                        lg:items-end
+                    "
+                >
+
+                    <div>
+
+                        <div
+                            class="
+                                mb-2
+                                flex
+                                items-center
+                                gap-2
+                            "
+                        >
+
+                            <span
+                                class="
+                                    inline-flex
+                                    items-center
+                                    gap-1.5
+                                    rounded-full
+                                    border
+                                    border-emerald-500/20
+                                    bg-emerald-500/10
+                                    px-2.5
+                                    py-1
+                                    text-[10px]
+                                    font-medium
+                                    text-emerald-400
+                                "
+                            >
+
+                                <span
+                                    class="
+                                        h-1.5
+                                        w-1.5
+                                        rounded-full
+                                        bg-emerald-400
+                                    "
+                                ></span>
+
+                                System operational
+
+                            </span>
+
+                        </div>
+
+
+                        <h2
+                            class="
+                                text-2xl
+                                font-bold
+                                tracking-tight
+                                text-white
+                                sm:text-3xl
+                            "
+                        >
+                            Welcome back, {{ user.name }}
+                        </h2>
+
+                        <p
+                            class="
+                                mt-2
+                                max-w-2xl
+                                text-sm
+                                leading-6
+                                text-slate-400
+                            "
+                        >
+                            Automatically classify financial
+                            statements, extract important fields,
+                            and monitor incoming Gmail documents.
+                        </p>
+
+                    </div>
+
+
+                    <!-- Upload CTA -->
+                    <a
+                        href="#upload"
+                        class="
+                            inline-flex
+                            shrink-0
+                            items-center
+                            justify-center
+                            gap-2
+                            rounded-xl
+                            bg-indigo-600
+                            px-4
+                            py-2.5
+                            text-sm
+                            font-semibold
+                            text-white
+                            shadow-lg
+                            shadow-indigo-600/20
+                            transition
+                            hover:bg-indigo-500
+                            focus:outline-none
+                            focus:ring-2
+                            focus:ring-indigo-500
+                            focus:ring-offset-2
+                            focus:ring-offset-slate-950
+                        "
+                    >
+
+                        <svg
+                            class="h-4 w-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M12 16V4m0 0l-4 4m4-4l4 4M5 20h14"
+                            />
+                        </svg>
+
+                        Upload statement
+
+                    </a>
+
+                </section>
+
+
+                <!-- ==================================================
+                     STATISTICS
+                ================================================== -->
+
+                <section
+                    class="
+                        grid
+                        grid-cols-1
+                        gap-4
+                        sm:grid-cols-2
+                        xl:grid-cols-4
+                    "
+                >
+
+                    <!-- Processed -->
+                    <div
+                        class="
+                            rounded-2xl
+                            border
+                            border-slate-800
+                            bg-slate-900/70
+                            p-5
+                        "
+                    >
+
+                        <div
+                            class="
+                                flex
+                                items-center
+                                justify-between
+                            "
+                        >
+
+                            <div
+                                class="
+                                    flex
+                                    h-10
+                                    w-10
+                                    items-center
+                                    justify-center
+                                    rounded-xl
+                                    bg-indigo-500/10
+                                    text-indigo-400
+                                "
+                            >
+
+                                <svg
+                                    class="h-5 w-5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M9 12h6m-6 4h6M7 3h8l4 4v14H7a2 2 0 01-2-2V5a2 2 0 012-2z"
+                                    />
+                                </svg>
+
+                            </div>
+
+                            <span
+                                class="
+                                    rounded-full
+                                    bg-slate-800
+                                    px-2
+                                    py-1
+                                    text-[10px]
+                                    text-slate-500
+                                "
+                            >
+                                Gmail
+                            </span>
+
+                        </div>
+
+                        <p
+                            class="
+                                mt-5
+                                text-2xl
+                                font-bold
+                                text-white
+                            "
+                            id="processedCount"
+                        >
+                            {{ processed_count }}
+                        </p>
+
+                        <p
+                            class="
+                                mt-1
+                                text-xs
+                                text-slate-500
+                            "
+                        >
+                            Statements processed
+                        </p>
+
+                    </div>
+
+
+                    <!-- Gmail -->
+                    <div
+                        class="
+                            rounded-2xl
+                            border
+                            border-slate-800
+                            bg-slate-900/70
+                            p-5
+                        "
+                    >
+
+                        <div
+                            class="
+                                flex
+                                h-10
+                                w-10
+                                items-center
+                                justify-center
+                                rounded-xl
+                                bg-rose-500/10
+                                text-rose-400
+                            "
+                        >
+
+                            <svg
+                                class="h-5 w-5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M4 5h16v14H4V5z"
+                                />
+
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M4 7l8 6 8-6"
+                                />
+                            </svg>
+
+                        </div>
+
+                        <div class="mt-5">
+
+                            <div
+                                class="
+                                    flex
+                                    items-center
+                                    gap-2
+                                "
+                            >
+
+                                <span
+                                    id="gmailStatusDot"
+                                    class="
+                                        h-2
+                                        w-2
+                                        rounded-full
+                                        bg-emerald-400
+                                    "
+                                ></span>
+
+                                <p
+                                    id="gmailStatus"
+                                    class="
+                                        text-sm
+                                        font-semibold
+                                        text-emerald-400
+                                    "
+                                >
+                                    Monitoring
+                                </p>
+
+                            </div>
+
+                            <p
+                                class="
+                                    mt-1
+                                    text-xs
+                                    text-slate-500
+                                "
+                            >
+                                Gmail auto-detection
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Classifier -->
+                    <div
+                        class="
+                            rounded-2xl
+                            border
+                            border-slate-800
+                            bg-slate-900/70
+                            p-5
+                        "
+                    >
+
+                        <div
+                            class="
+                                flex
+                                h-10
+                                w-10
+                                items-center
+                                justify-center
+                                rounded-xl
+                                bg-emerald-500/10
+                                text-emerald-400
+                            "
+                        >
+
+                            <svg
+                                class="h-5 w-5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                                />
+                            </svg>
+
+                        </div>
+
+                        <p
+                            class="
+                                mt-5
+                                text-sm
+                                font-semibold
+                                text-emerald-400
+                            "
+                        >
+                            Ready
+                        </p>
+
+                        <p
+                            class="
+                                mt-1
+                                text-xs
+                                text-slate-500
+                            "
+                        >
+                            ML classifier
+                        </p>
+
+                    </div>
+
+
+                    <!-- API -->
+                    <div
+                        class="
+                            rounded-2xl
+                            border
+                            border-slate-800
+                            bg-slate-900/70
+                            p-5
+                        "
+                    >
+
+                        <div
+                            class="
+                                flex
+                                h-10
+                                w-10
+                                items-center
+                                justify-center
+                                rounded-xl
+                                bg-cyan-500/10
+                                text-cyan-400
+                            "
+                        >
+
+                            <svg
+                                class="h-5 w-5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M8 9l-4 3 4 3M16 9l4 3-4 3M14 5l-4 14"
+                                />
+                            </svg>
+
+                        </div>
+
+                        <p
+                            class="
+                                mt-5
+                                text-sm
+                                font-semibold
+                                text-cyan-400
+                            "
+                        >
+                            Online
+                        </p>
+
+                        <p
+                            class="
+                                mt-1
+                                text-xs
+                                text-slate-500
+                            "
+                        >
+                            Application API
+                        </p>
+
+                    </div>
+
+                </section>
+
+
+                <!-- ==================================================
+                     UPLOAD SECTION
+                ================================================== -->
+
+                <section
+                    id="upload"
+                    class="
+                        rounded-2xl
+                        border
+                        border-slate-800
+                        bg-slate-900/60
+                        p-5
+                        sm:p-6
+                    "
+                >
+
+                    <div
+                        class="
+                            flex
+                            flex-col
+                            gap-2
+                            sm:flex-row
+                            sm:items-center
+                            sm:justify-between
+                        "
+                    >
+
+                        <div>
+
+                            <h3
+                                class="
+                                    text-base
+                                    font-semibold
+                                    text-white
+                                "
+                            >
+                                Classify a statement
+                            </h3>
+
+                            <p
+                                class="
+                                    mt-1
+                                    text-xs
+                                    text-slate-500
+                                "
+                            >
+                                Upload a PDF and let the classifier
+                                extract the statement information.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <form
+                        id="uploadForm"
+                        class="mt-5"
+                    >
+
+                        <label
+                            for="statementFile"
+                            id="dropZone"
+                            class="
+                                group
+                                flex
+                                cursor-pointer
+                                flex-col
+                                items-center
+                                justify-center
+                                rounded-2xl
+                                border
+                                border-dashed
+                                border-slate-700
+                                bg-slate-950/60
+                                px-6
+                                py-10
+                                text-center
+                                transition
+                                hover:border-indigo-500/60
+                                hover:bg-indigo-500/5
+                            "
+                        >
+
+                            <div
+                                class="
+                                    flex
+                                    h-12
+                                    w-12
+                                    items-center
+                                    justify-center
+                                    rounded-xl
+                                    bg-indigo-500/10
+                                    text-indigo-400
+                                    transition
+                                    group-hover:scale-105
+                                "
+                            >
+
+                                <svg
+                                    class="h-6 w-6"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M12 16V4m0 0l-4 4m4-4l4 4M5 20h14"
+                                    />
+                                </svg>
+
+                            </div>
+
+                            <p
+                                class="
+                                    mt-4
+                                    text-sm
+                                    font-semibold
+                                    text-slate-200
+                                "
+                            >
+                                Drop your PDF here
+                            </p>
+
+                            <p
+                                class="
+                                    mt-1
+                                    text-xs
+                                    text-slate-500
+                                "
+                            >
+                                or click to browse files
+                            </p>
+
+                            <span
+                                class="
+                                    mt-3
+                                    rounded-lg
+                                    bg-slate-800
+                                    px-2.5
+                                    py-1
+                                    text-[10px]
+                                    text-slate-500
+                                "
+                            >
+                                PDF only
+                            </span>
+
+                            <input
+                                id="statementFile"
+                                name="file"
+                                type="file"
+                                accept=".pdf,application/pdf"
+                                class="hidden"
+                            >
+
+                        </label>
+
+
+                        <!-- Selected file -->
+                        <div
+                            id="selectedFile"
+                            class="mt-4 hidden"
+                        >
+
+                            <div
+                                class="
+                                    flex
+                                    items-center
+                                    justify-between
+                                    gap-4
+                                    rounded-xl
+                                    border
+                                    border-slate-800
+                                    bg-slate-950
+                                    px-4
+                                    py-3
+                                "
+                            >
+
+                                <div
+                                    class="
+                                        flex
+                                        min-w-0
+                                        items-center
+                                        gap-3
+                                    "
+                                >
+
+                                    <div
+                                        class="
+                                            flex
+                                            h-9
+                                            w-9
+                                            shrink-0
+                                            items-center
+                                            justify-center
+                                            rounded-lg
+                                            bg-red-500/10
+                                            text-red-400
+                                        "
+                                    >
+                                        PDF
+                                    </div>
+
+                                    <div class="min-w-0">
+
+                                        <p
+                                            id="fileName"
+                                            class="
+                                                truncate
+                                                text-sm
+                                                font-medium
+                                                text-slate-200
+                                            "
+                                        ></p>
+
+                                        <p
+                                            id="fileSize"
+                                            class="
+                                                text-xs
+                                                text-slate-500
+                                            "
+                                        ></p>
+
+                                    </div>
+
+                                </div>
+
+                                <button
+                                    type="button"
+                                    onclick="clearFile()"
+                                    class="
+                                        shrink-0
+                                        rounded-lg
+                                        px-2
+                                        py-1
+                                        text-xs
+                                        text-slate-500
+                                        hover:bg-slate-800
+                                        hover:text-slate-200
+                                    "
+                                >
+                                    Remove
+                                </button>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Submit -->
+                        <div
+                            class="
+                                mt-4
+                                flex
+                                justify-end
+                            "
+                        >
+
+                            <button
+                                id="classifyButton"
+                                type="submit"
+                                disabled
+                                class="
+                                    inline-flex
+                                    items-center
+                                    gap-2
+                                    rounded-xl
+                                    bg-indigo-600
+                                    px-5
+                                    py-2.5
+                                    text-sm
+                                    font-semibold
+                                    text-white
+                                    transition
+                                    hover:bg-indigo-500
+                                    disabled:cursor-not-allowed
+                                    disabled:opacity-40
+                                "
+                            >
+
+                                <span
+                                    id="buttonSpinner"
+                                    class="hidden"
+                                >
+                                    <svg
+                                        class="
+                                            h-4
+                                            w-4
+                                            animate-spin
+                                        "
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <circle
+                                            class="opacity-25"
+                                            cx="12"
+                                            cy="12"
+                                            r="10"
+                                            stroke="currentColor"
+                                            stroke-width="4"
+                                        />
+
+                                        <path
+                                            class="opacity-75"
+                                            fill="currentColor"
+                                            d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                                        />
+                                    </svg>
+                                </span>
+
+                                <span id="buttonText">
+                                    Classify statement
+                                </span>
+
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </section>
+
+
+                <!-- ==================================================
+                     RESULT
+                ================================================== -->
+
+                <section
+                    id="resultSection"
+                    class="hidden"
+                >
+
+                    <div
+                        class="
+                            rounded-2xl
+                            border
+                            border-emerald-500/20
+                            bg-emerald-500/5
+                            p-5
+                            sm:p-6
+                        "
+                    >
+
+                        <div
+                            class="
+                                flex
+                                items-start
+                                justify-between
+                                gap-4
+                            "
+                        >
+
+                            <div>
+
+                                <div
+                                    class="
+                                        flex
+                                        items-center
+                                        gap-2
+                                    "
+                                >
+
+                                    <div
+                                        class="
+                                            flex
+                                            h-8
+                                            w-8
+                                            items-center
+                                            justify-center
+                                            rounded-full
+                                            bg-emerald-500/10
+                                            text-emerald-400
+                                        "
+                                    >
+
+                                        <svg
+                                            class="h-4 w-4"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M5 13l4 4L19 7"
+                                            />
+                                        </svg>
+
+                                    </div>
+
+                                    <h3
+                                        class="
+                                            text-base
+                                            font-semibold
+                                            text-white
+                                        "
+                                    >
+                                        Classification complete
+                                    </h3>
+
+                                </div>
+
+                                <p
+                                    id="resultFilename"
+                                    class="
+                                        mt-2
+                                        text-xs
+                                        text-slate-500
+                                    "
+                                ></p>
+
+                            </div>
+
+
+                            <span
+                                id="resultType"
+                                class="
+                                    rounded-full
+                                    border
+                                    border-indigo-500/20
+                                    bg-indigo-500/10
+                                    px-3
+                                    py-1
+                                    text-xs
+                                    font-medium
+                                    text-indigo-300
+                                "
+                            ></span>
+
+                        </div>
+
+
+                        <div
+                            id="resultData"
+                            class="
+                                mt-5
+                                grid
+                                grid-cols-1
+                                gap-3
+                                sm:grid-cols-2
+                                lg:grid-cols-3
+                            "
+                        ></div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- ==================================================
+                     RECENT STATEMENTS
+                ================================================== -->
+
+                <section
+                    id="statements"
+                    class="
+                        rounded-2xl
+                        border
+                        border-slate-800
+                        bg-slate-900/60
+                    "
+                >
+
+                    <div
+                        class="
+                            flex
+                            flex-col
+                            gap-3
+                            border-b
+                            border-slate-800
+                            p-5
+                            sm:flex-row
+                            sm:items-center
+                            sm:justify-between
+                            sm:p-6
+                        "
+                    >
+
+                        <div>
+
+                            <h3
+                                class="
+                                    text-base
+                                    font-semibold
+                                    text-white
+                                "
+                            >
+                                Recent statements
+                            </h3>
+
+                            <p
+                                class="
+                                    mt-1
+                                    text-xs
+                                    text-slate-500
+                                "
+                            >
+                                Statements detected and processed
+                                from Gmail.
+                            </p>
+
+                        </div>
+
+
+                        <button
+                            type="button"
+                            onclick="loadStatements()"
+                            class="
+                                inline-flex
+                                items-center
+                                justify-center
+                                gap-2
+                                rounded-lg
+                                border
+                                border-slate-700
+                                bg-slate-900
+                                px-3
+                                py-2
+                                text-xs
+                                font-medium
+                                text-slate-300
+                                transition
+                                hover:border-slate-600
+                                hover:bg-slate-800
+                                hover:text-white
+                            "
+                        >
+
+                            <svg
+                                class="h-4 w-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M4 4v5h5M20 20v-5h-5M5.5 9A7 7 0 0117 6.5L20 9M18.5 15A7 7 0 017 17.5L4 15"
+                                />
+                            </svg>
+
+                            Refresh
+
+                        </button>
+
+                    </div>
+
+
+                    <!-- Loading -->
+                    <div
+                        id="statementsLoading"
+                        class="
+                            flex
+                            items-center
+                            justify-center
+                            px-6
+                            py-14
+                        "
+                    >
+
+                        <div class="text-center">
+
+                            <svg
+                                class="
+                                    mx-auto
+                                    h-6
+                                    w-6
+                                    animate-spin
+                                    text-indigo-400
+                                "
+                                fill="none"
+                                viewBox="0 0 24 24"
+                            >
+                                <circle
+                                    class="opacity-25"
+                                    cx="12"
+                                    cy="12"
+                                    r="10"
+                                    stroke="currentColor"
+                                    stroke-width="4"
+                                />
+
+                                <path
+                                    class="opacity-75"
+                                    fill="currentColor"
+                                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                                />
+                            </svg>
+
+                            <p
+                                class="
+                                    mt-3
+                                    text-xs
+                                    text-slate-500
+                                "
+                            >
+                                Loading statements...
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Empty state -->
+                    <div
+                        id="statementsEmpty"
+                        class="
+                            hidden
+                            px-6
+                            py-14
+                            text-center
+                        "
+                    >
+
+                        <div
+                            class="
+                                mx-auto
+                                flex
+                                h-12
+                                w-12
+                                items-center
+                                justify-center
+                                rounded-xl
+                                bg-slate-800
+                                text-slate-500
+                            "
+                        >
+
+                            <svg
+                                class="h-6 w-6"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M7 3h8l4 4v14H7a2 2 0 01-2-2V5a2 2 0 012-2z"
+                                />
+
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M15 3v5h5"
+                                />
+                            </svg>
+
+                        </div>
+
+                        <h4
+                            class="
+                                mt-4
+                                text-sm
+                                font-semibold
+                                text-slate-300
+                            "
+                        >
+                            No processed Gmail statements yet.
+                        </h4>
+
+                        <p
+                            class="
+                                mx-auto
+                                mt-1
+                                max-w-md
+                                text-xs
+                                leading-5
+                                text-slate-500
+                            "
+                        >
+                            Once the Gmail detector finds an unread
+                            statement PDF, it will appear here.
+                        </p>
+
+                    </div>
+
+
+                    <!-- Statements table -->
+                    <div
+                        id="statementsTable"
+                        class="hidden overflow-x-auto"
+                    >
+
+                        <table
+                            class="w-full min-w-[850px] text-left"
+                        >
+
+                            <thead
+                                class="
+                                    border-b
+                                    border-slate-800
+                                    bg-slate-950/50
+                                "
+                            >
+
+                                <tr>
+
+                                    <th
+                                        class="
+                                            px-6
+                                            py-3
+                                            text-[10px]
+                                            font-semibold
+                                            uppercase
+                                            tracking-wider
+                                            text-slate-500
+                                        "
+                                    >
+                                        Statement
+                                    </th>
+
+                                    <th
+                                        class="
+                                            px-6
+                                            py-3
+                                            text-[10px]
+                                            font-semibold
+                                            uppercase
+                                            tracking-wider
+                                            text-slate-500
+                                        "
+                                    >
+                                        Sender
+                                    </th>
+
+                                    <th
+                                        class="
+                                            px-6
+                                            py-3
+                                            text-[10px]
+                                            font-semibold
+                                            uppercase
+                                            tracking-wider
+                                            text-slate-500
+                                        "
+                                    >
+                                        Classification
+                                    </th>
+
+                                    <th
+                                        class="
+                                            px-6
+                                            py-3
+                                            text-[10px]
+                                            font-semibold
+                                            uppercase
+                                            tracking-wider
+                                            text-slate-500
+                                        "
+                                    >
+                                        Subject
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+                            <tbody
+                                id="statementsBody"
+                                class="divide-y divide-slate-800"
+                            ></tbody>
+
+                        </table>
+
+                    </div>
+
+                </section>
+
+
+                <!-- ==================================================
+                     FOOTER
+                ================================================== -->
+
+                <footer
+                    class="
+                        flex
+                        flex-col
+                        gap-2
+                        border-t
+                        border-slate-900
+                        py-5
+                        text-[11px]
+                        text-slate-600
+                        sm:flex-row
+                        sm:items-center
+                        sm:justify-between
+                    "
+                >
+
+                    <span>
+                        Statement Classifier
+                    </span>
+
+                    <span>
+                        Authenticated as {{ user.email }}
+                    </span>
+
+                </footer>
+
+            </div>
+
+        </main>
+
+    </div>
+
+</div>
+
+
+<!-- ================================================================
+     TOAST
+================================================================ -->
+
+<div
+    id="toast"
+    class="
+        fixed
+        bottom-5
+        right-5
+        z-[100]
+        hidden
+        max-w-sm
+        rounded-xl
+        border
+        border-slate-700
+        bg-slate-900
+        px-4
+        py-3
+        shadow-2xl
+    "
+>
+
+    <p
+        id="toastMessage"
+        class="text-xs text-slate-200"
+    ></p>
+
+</div>
+
+
+<!-- ================================================================
+     JAVASCRIPT
+================================================================ -->
+
+<script>
+
+    const API_BASE = "/api/v1";
+
+
+    // ================================================================
+    // Sidebar
+    // ================================================================
+
+    function toggleSidebar() {
+
+        const sidebar =
+            document.getElementById("sidebar");
+
+        const overlay =
+            document.getElementById("sidebarOverlay");
+
+        const isOpen =
+            !sidebar.classList.contains("-translate-x-full");
+
+        if (isOpen) {
+
+            sidebar.classList.add(
+                "-translate-x-full"
+            );
+
+            overlay.classList.add(
+                "hidden"
+            );
+
+        } else {
+
+            sidebar.classList.remove(
+                "-translate-x-full"
+            );
+
+            overlay.classList.remove(
+                "hidden"
+            );
+        }
+    }
+
+
+    // ================================================================
+    // Toast
+    // ================================================================
+
+    let toastTimer = null;
+
+    function showToast(
+        message,
+        duration = 3500
+    ) {
+
+        const toast =
+            document.getElementById("toast");
+
+        const toastMessage =
+            document.getElementById("toastMessage");
+
+        toastMessage.textContent =
+            message;
+
+        toast.classList.remove(
+            "hidden"
+        );
+
+        clearTimeout(
+            toastTimer
+        );
+
+        toastTimer = setTimeout(
+            () => {
+                toast.classList.add(
+                    "hidden"
+                );
+            },
+            duration
+        );
+    }
+
+
+    // ================================================================
+    // File upload
+    // ================================================================
+
+    const fileInput =
+        document.getElementById(
+            "statementFile"
+        );
+
+    const dropZone =
+        document.getElementById(
+            "dropZone"
+        );
+
+    const selectedFile =
+        document.getElementById(
+            "selectedFile"
+        );
+
+    const classifyButton =
+        document.getElementById(
+            "classifyButton"
+        );
+
+
+    fileInput.addEventListener(
+        "change",
+        function () {
+
+            if (
+                this.files &&
+                this.files.length > 0
+            ) {
+
+                handleFile(
+                    this.files[0]
+                );
+            }
+        }
+    );
+
+
+    function handleFile(file) {
+
+        if (
+            file.type !== "application/pdf" &&
+            !file.name
+                .toLowerCase()
+                .endsWith(".pdf")
+        ) {
+
+            showToast(
+                "Please select a PDF file."
+            );
+
+            clearFile();
+
+            return;
+        }
+
+
+        document.getElementById(
+            "fileName"
+        ).textContent =
+            file.name;
+
+
+        document.getElementById(
+            "fileSize"
+        ).textContent =
+            formatFileSize(
+                file.size
+            );
+
+
+        selectedFile.classList.remove(
+            "hidden"
+        );
+
+        classifyButton.disabled =
+            false;
+    }
+
+
+    function clearFile() {
+
+        fileInput.value = "";
+
+        selectedFile.classList.add(
+            "hidden"
+        );
+
+        classifyButton.disabled =
+            true;
+    }
+
+
+    function formatFileSize(
+        bytes
+    ) {
+
+        if (bytes === 0) {
+            return "0 Bytes";
+        }
+
+        const units = [
+            "Bytes",
+            "KB",
+            "MB",
+            "GB"
+        ];
+
+        const index =
+            Math.floor(
+                Math.log(bytes) /
+                Math.log(1024)
+            );
+
+        return (
+            parseFloat(
+                (
+                    bytes /
+                    Math.pow(
+                        1024,
+                        index
+                    )
+                ).toFixed(2)
+            )
+            +
+            " "
+            +
+            units[index]
+        );
+    }
+
+
+    // ================================================================
+    // Drag and drop
+    // ================================================================
+
+    [
+        "dragenter",
+        "dragover"
+    ].forEach(
+        eventName => {
+
+            dropZone.addEventListener(
+                eventName,
+                event => {
+
+                    event.preventDefault();
+
+                    dropZone.classList.add(
+                        "border-indigo-500",
+                        "bg-indigo-500/5"
+                    );
+                }
+            );
+        }
+    );
+
+
+    [
+        "dragleave",
+        "drop"
+    ].forEach(
+        eventName => {
+
+            dropZone.addEventListener(
+                eventName,
+                event => {
+
+                    event.preventDefault();
+
+                    dropZone.classList.remove(
+                        "border-indigo-500",
+                        "bg-indigo-500/5"
+                    );
+                }
+            );
+        }
+    );
+
+
+    dropZone.addEventListener(
+        "drop",
+        event => {
+
+            const files =
+                event.dataTransfer.files;
+
+            if (
+                files &&
+                files.length > 0
+            ) {
+
+                fileInput.files =
+                    files;
+
+                handleFile(
+                    files[0]
+                );
+            }
+        }
+    );
+
+
+    // ================================================================
+    // Classify PDF
+    // ================================================================
+
+    document
+        .getElementById("uploadForm")
+        .addEventListener(
+            "submit",
+            async function (event) {
+
+                event.preventDefault();
+
+                if (
+                    !fileInput.files ||
+                    fileInput.files.length === 0
+                ) {
+
+                    showToast(
+                        "Please select a PDF first."
+                    );
+
+                    return;
+                }
+
+
+                const file =
+                    fileInput.files[0];
+
+
+                const formData =
+                    new FormData();
+
+                formData.append(
+                    "file",
+                    file
+                );
+
+
+                const buttonText =
+                    document.getElementById(
+                        "buttonText"
+                    );
+
+                const spinner =
+                    document.getElementById(
+                        "buttonSpinner"
+                    );
+
+
+                classifyButton.disabled =
+                    true;
+
+                spinner.classList.remove(
+                    "hidden"
+                );
+
+                buttonText.textContent =
+                    "Processing...";
+
+
+                try {
+
+                    const response =
+                        await fetch(
+                            `${API_BASE}/classify-statement`,
+                            {
+                                method: "POST",
+                                body: formData
+                            }
+                        );
+
+
+                    if (
+                        response.status === 401
+                    ) {
+
+                        window.location.href =
+                            "/";
+
+                        return;
+                    }
+
+
+                    const data =
+                        await response.json();
+
+
+                    if (!response.ok) {
+
+                        throw new Error(
+                            data.detail ||
+                            "Failed to classify statement."
+                        );
+                    }
+
+
+                    displayClassificationResult(
+                        data
+                    );
+
+                    showToast(
+                        "Statement classified successfully."
+                    );
+
+                } catch (error) {
+
+                    console.error(
+                        error
+                    );
+
+                    showToast(
+                        error.message ||
+                        "Unable to process the statement."
+                    );
+
+                } finally {
+
+                    spinner.classList.add(
+                        "hidden"
+                    );
+
+                    buttonText.textContent =
+                        "Classify statement";
+
+                    classifyButton.disabled =
+                        false;
+                }
+            }
+        );
+
+
+    // ================================================================
+    // Classification result
+    // ================================================================
+
+    function displayClassificationResult(
+        data
+    ) {
+
+        const section =
+            document.getElementById(
+                "resultSection"
+            );
+
+
+        document.getElementById(
+            "resultFilename"
+        ).textContent =
+            data.filename || "Statement";
+
+
+        document.getElementById(
+            "resultType"
+        ).textContent =
+            data.doc_type || "Unknown";
+
+
+        const resultData =
+            document.getElementById(
+                "resultData"
+            );
+
+
+        resultData.innerHTML = "";
+
+
+        const extractedData =
+            data.extracted_data;
+
+
+        if (
+            extractedData &&
+            typeof extractedData === "object"
+        ) {
+
+            Object.entries(
+                extractedData
+            ).forEach(
+                ([key, value]) => {
+
+                    const card =
+                        document.createElement(
+                            "div"
+                        );
+
+                    card.className = `
+                        rounded-xl
+                        border
+                        border-slate-800
+                        bg-slate-950
+                        p-4
+                    `;
+
+
+                    const label =
+                        document.createElement(
+                            "p"
+                        );
+
+                    label.className = `
+                        text-[10px]
+                        font-semibold
+                        uppercase
+                        tracking-wider
+                        text-slate-500
+                    `;
+
+                    label.textContent =
+                        formatLabel(
+                            key
+                        );
+
+
+                    const valueElement =
+                        document.createElement(
+                            "p"
+                        );
+
+                    valueElement.className = `
+                        mt-2
+                        break-words
+                        text-sm
+                        font-medium
+                        text-slate-200
+                    `;
+
+                    valueElement.textContent =
+                        formatValue(
+                            value
+                        );
+
+
+                    card.appendChild(
+                        label
+                    );
+
+                    card.appendChild(
+                        valueElement
+                    );
+
+                    resultData.appendChild(
+                        card
+                    );
+                }
+            );
+
+        } else {
+
+            const empty =
+                document.createElement(
+                    "p"
+                );
+
+            empty.className = `
+                text-sm
+                text-slate-500
+            `;
+
+            empty.textContent =
+                "No structured fields were extracted.";
+
+            resultData.appendChild(
+                empty
+            );
+        }
+
+
+        section.classList.remove(
+            "hidden"
+        );
+
+        section.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+    }
+
+
+    function formatLabel(
+        value
+    ) {
+
+        return String(value)
+            .replace(
+                /_/g,
+                " "
+            )
+            .replace(
+                /\b\w/g,
+                char =>
+                    char.toUpperCase()
+            );
+    }
+
+
+    function formatValue(
+        value
+    ) {
+
+        if (
+            value === null ||
+            value === undefined
+        ) {
+
+            return "—";
+        }
+
+
+        if (
+            typeof value === "object"
+        ) {
+
+            try {
+
+                return JSON.stringify(
+                    value
+                );
+
+            } catch {
+
+                return String(
+                    value
+                );
+            }
+        }
+
+
+        return String(
+            value
+        );
+    }
+
+
+    // ================================================================
+    // Load Gmail statements
+    // ================================================================
+
+    async function loadStatements() {
+
+        const loading =
+            document.getElementById(
+                "statementsLoading"
+            );
+
+        const empty =
+            document.getElementById(
+                "statementsEmpty"
+            );
+
+        const table =
+            document.getElementById(
+                "statementsTable"
+            );
+
+        const body =
+            document.getElementById(
+                "statementsBody"
+            );
+
+
+        loading.classList.remove(
+            "hidden"
+        );
+
+        empty.classList.add(
+            "hidden"
+        );
+
+        table.classList.add(
+            "hidden"
+        );
+
+
+        try {
+
+            const response =
+                await fetch(
+                    `${API_BASE}/processed-statements`,
+                    {
+                        headers: {
+                            "Accept":
+                                "application/json"
+                        }
+                    }
+                );
+
+
+            if (
+                response.status === 401
+            ) {
+
+                window.location.href =
+                    "/";
+
+                return;
+            }
+
+
+            const data =
+                await response.json();
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.detail ||
+                    "Failed to load statements."
+                );
+            }
+
+
+            body.innerHTML = "";
+
+
+            document.getElementById(
+                "processedCount"
+            ).textContent =
+                data.count || 0;
+
+
+            if (
+                !data.statements ||
+                data.statements.length === 0
+            ) {
+
+                empty.classList.remove(
+                    "hidden"
+                );
+
+                return;
+            }
+
+
+            data.statements.forEach(
+                statement => {
+
+                    const row =
+                        document.createElement(
+                            "tr"
+                        );
+
+                    row.className = `
+                        transition
+                        hover:bg-slate-800/40
+                    `;
+
+
+                    row.innerHTML = `
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+
+                                <div class="
+                                    flex
+                                    h-9
+                                    w-9
+                                    shrink-0
+                                    items-center
+                                    justify-center
+                                    rounded-lg
+                                    bg-red-500/10
+                                    text-[10px]
+                                    font-bold
+                                    text-red-400
+                                ">
+                                    PDF
+                                </div>
+
+                                <div class="min-w-0">
+                                    <p class="
+                                        max-w-[260px]
+                                        truncate
+                                        text-sm
+                                        font-medium
+                                        text-slate-200
+                                    ">
+                                        ${escapeHtml(
+                                            statement.filename ||
+                                            "Unknown file"
+                                        )}
+                                    </p>
+
+                                    <p class="
+                                        mt-0.5
+                                        text-[11px]
+                                        text-slate-600
+                                    ">
+                                        ${escapeHtml(
+                                            statement.message_id ||
+                                            "Local upload"
+                                        )}
+                                    </p>
+                                </div>
+
+                            </div>
+                        </td>
+
+
+                        <td class="
+                            px-6
+                            py-4
+                            text-xs
+                            text-slate-400
+                        ">
+                            ${escapeHtml(
+                                statement.sender ||
+                                "Unknown"
+                            )}
+                        </td>
+
+
+                        <td class="px-6 py-4">
+
+                            <span class="
+                                inline-flex
+                                rounded-full
+                                border
+                                border-indigo-500/20
+                                bg-indigo-500/10
+                                px-2.5
+                                py-1
+                                text-[10px]
+                                font-medium
+                                text-indigo-300
+                            ">
+                                ${escapeHtml(
+                                    statement.doc_type ||
+                                    "Unknown"
+                                )}
+                            </span>
+
+                        </td>
+
+
+                        <td class="
+                            max-w-[300px]
+                            truncate
+                            px-6
+                            py-4
+                            text-xs
+                            text-slate-400
+                        ">
+                            ${escapeHtml(
+                                statement.subject ||
+                                "No subject"
+                            )}
+                        </td>
+                    `;
+
+
+                    body.appendChild(
+                        row
+                    );
+                }
+            );
+
+
+            table.classList.remove(
+                "hidden"
+            );
+
+        } catch (error) {
+
+            console.error(
+                error
+            );
+
+            empty.classList.remove(
+                "hidden"
+            );
+
+            showToast(
+                error.message ||
+                "Unable to load statements."
+            );
+
+        } finally {
+
+            loading.classList.add(
+                "hidden"
+            );
+        }
+    }
+
+
+    // ================================================================
+    // HTML escaping
+    // ================================================================
+
+    function escapeHtml(
+        value
+    ) {
+
+        const div =
+            document.createElement(
+                "div"
+            );
+
+        div.textContent =
+            String(
+                value ?? ""
+            );
+
+        return div.innerHTML;
+    }
+
+
+    // ================================================================
+    // Initial page load
+    // ================================================================
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        () => {
+
+            loadStatements();
+
+        }
+    );
+
+
+    // ================================================================
+    // Auto refresh
+    //
+    // Gmail worker runs in the backend, so refresh the dashboard
+    // periodically to show newly processed statements.
+    // ================================================================
+
+    setInterval(
+        () => {
+
+            loadStatements();
+
+        },
+        30000
+    );
+
+</script>
+
+</body>
+</html>

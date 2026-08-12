@@ -1,0 +1,2270 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-950">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Statement Classifier</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            400: "#818cf8",
+                            500: "#6366f1",
+                            600: "#4f46e5",
+                            700: "#4338ca"
+                        }
+                    }
+                }
+            }
+        };
+    </script>
+
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            min-height: 100vh;
+        }
+
+        .glass {
+            background: rgba(15, 23, 42, 0.72);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        .scrollbar-thin::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .scrollbar-thin::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 999px;
+        }
+
+        .drop-zone-active {
+            border-color: #6366f1 !important;
+            background: rgba(99, 102, 241, 0.08) !important;
+        }
+
+        .spinner {
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-top-color: #818cf8;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body class="h-full bg-slate-950 text-slate-100 font-sans antialiased">
+
+<!-- ============================================================
+     MOBILE SIDEBAR OVERLAY
+============================================================ -->
+
+<div
+    id="mobileOverlay"
+    class="fixed inset-0 bg-black/60 z-40 hidden md:hidden"
+    onclick="closeMobileSidebar()"
+></div>
+
+
+<!-- ============================================================
+     MOBILE SIDEBAR
+============================================================ -->
+
+<aside
+    id="mobileSidebar"
+    class="fixed left-0 top-0 bottom-0 w-72 bg-slate-900 border-r border-slate-800 z-50 transform -translate-x-full transition-transform duration-200 md:hidden"
+>
+
+    <div class="h-16 px-5 flex items-center justify-between border-b border-slate-800">
+
+        <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-lg bg-indigo-600 flex items-center justify-center">
+                <svg
+                    class="w-5 h-5 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M9 17v-2a4 4 0 014-4h6"
+                    />
+                </svg>
+            </div>
+
+            <div>
+                <p class="font-semibold text-sm">Statement Classifier</p>
+                <p class="text-xs text-slate-500">Document Intelligence</p>
+            </div>
+        </div>
+
+        <button
+            onclick="closeMobileSidebar()"
+            class="p-2 text-slate-400 hover:text-white"
+        >
+            <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+            >
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M6 18L18 6M6 6l12 12"
+                />
+            </svg>
+        </button>
+
+    </div>
+
+    <nav class="p-4 space-y-1">
+
+        <button
+            onclick="showSection('dashboard'); closeMobileSidebar();"
+            class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-indigo-600/15 text-indigo-400"
+            data-section="dashboard"
+        >
+            <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+            >
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M3 12l9-9 9 9M5 10v10a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1V10"
+                />
+            </svg>
+
+            Dashboard
+        </button>
+
+        <button
+            onclick="showSection('classifier'); closeMobileSidebar();"
+            class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition"
+            data-section="classifier"
+        >
+            <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+            >
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M7 3h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2z"
+                />
+            </svg>
+
+            Classify Statement
+        </button>
+
+        <button
+            onclick="showSection('gmail'); closeMobileSidebar();"
+            class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition"
+            data-section="gmail"
+        >
+            <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+            >
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M3 8l9 6 9-6M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                />
+            </svg>
+
+            Gmail Statements
+        </button>
+
+    </nav>
+
+</aside>
+
+
+<!-- ============================================================
+     DESKTOP SIDEBAR
+============================================================ -->
+
+<aside class="hidden md:flex fixed left-0 top-0 bottom-0 w-64 bg-slate-900 border-r border-slate-800 flex-col z-30">
+
+    <!-- Logo -->
+
+    <div class="h-16 px-5 flex items-center gap-3 border-b border-slate-800">
+
+        <div class="w-9 h-9 rounded-lg bg-indigo-600 flex items-center justify-center">
+
+            <svg
+                class="w-5 h-5 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+            >
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 17v-2a4 4 0 014-4h6"
+                />
+            </svg>
+
+        </div>
+
+        <div>
+            <p class="font-semibold text-sm">
+                Statement Classifier
+            </p>
+
+            <p class="text-xs text-slate-500">
+                Document Intelligence
+            </p>
+        </div>
+
+    </div>
+
+
+    <!-- Navigation -->
+
+    <nav class="p-4 space-y-1 flex-1">
+
+        <p class="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
+            Workspace
+        </p>
+
+        <button
+            onclick="showSection('dashboard')"
+            data-section="dashboard"
+            class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-indigo-600/15 text-indigo-400"
+        >
+            <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+            >
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M3 12l9-9 9 9M5 10v10a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1V10"
+                />
+            </svg>
+
+            Dashboard
+        </button>
+
+
+        <button
+            onclick="showSection('classifier')"
+            data-section="classifier"
+            class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition"
+        >
+            <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+            >
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M7 3h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2z"
+                />
+            </svg>
+
+            Classify Statement
+        </button>
+
+
+        <button
+            onclick="showSection('gmail')"
+            data-section="gmail"
+            class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition"
+        >
+            <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+            >
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M3 8l9 6 9-6M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                />
+            </svg>
+
+            Gmail Statements
+        </button>
+
+
+        <div class="pt-6">
+
+            <p class="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                System
+            </p>
+
+            <a
+                href="/docs"
+                target="_blank"
+                class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition"
+            >
+                <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                    />
+                </svg>
+
+                API Documentation
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <!-- Sidebar footer -->
+
+    <div class="p-4 border-t border-slate-800">
+
+        <div class="flex items-center gap-3">
+
+            <div class="w-9 h-9 rounded-full bg-indigo-600 flex items-center justify-center text-xs font-bold">
+                SC
+            </div>
+
+            <div class="min-w-0">
+
+                <p class="text-sm font-medium truncate">
+                    Statement Classifier
+                </p>
+
+                <p
+                    id="sidebarStatus"
+                    class="text-xs text-slate-500"
+                >
+                    Checking status...
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</aside>
+
+
+<!-- ============================================================
+     MAIN APPLICATION
+============================================================ -->
+
+<div class="md:ml-64 min-h-screen flex flex-col">
+
+
+    <!-- ========================================================
+         TOP HEADER
+    ========================================================= -->
+
+    <header class="h-16 bg-slate-900/90 border-b border-slate-800 sticky top-0 z-20 backdrop-blur">
+
+        <div class="h-full px-4 sm:px-6 flex items-center justify-between">
+
+            <div class="flex items-center gap-3">
+
+                <!-- Mobile menu -->
+
+                <button
+                    onclick="openMobileSidebar()"
+                    class="md:hidden p-2 text-slate-400 hover:text-white"
+                >
+                    <svg
+                        class="w-6 h-6"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M4 6h16M4 12h16M4 18h16"
+                        />
+                    </svg>
+                </button>
+
+
+                <div>
+
+                    <h1
+                        id="pageTitle"
+                        class="font-semibold text-slate-100"
+                    >
+                        Dashboard
+                    </h1>
+
+                    <p class="hidden sm:block text-xs text-slate-500">
+                        Automated financial statement classification
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- Header status -->
+
+            <div class="flex items-center gap-3">
+
+                <div class="hidden sm:flex items-center gap-2">
+
+                    <span
+                        id="systemStatusDot"
+                        class="w-2 h-2 rounded-full bg-slate-500"
+                    ></span>
+
+                    <span
+                        id="systemStatusText"
+                        class="text-xs text-slate-400"
+                    >
+                        Checking...
+                    </span>
+
+                </div>
+
+                <button
+                    onclick="refreshAll()"
+                    title="Refresh dashboard"
+                    class="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition"
+                >
+                    <svg
+                        class="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M4 4v5h5M20 20v-5h-5M5.05 15A7 7 0 0017.95 9M18.95 9A7 7 0 006.05 15"
+                        />
+                    </svg>
+                </button>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <!-- ========================================================
+         CONTENT
+    ========================================================= -->
+
+    <main class="flex-1 p-4 sm:p-6 lg:p-8">
+
+
+        <!-- ====================================================
+             DASHBOARD SECTION
+        ==================================================== -->
+
+        <section
+            id="section-dashboard"
+            class="app-section space-y-6"
+        >
+
+            <!-- Welcome -->
+
+            <div>
+
+                <h2 class="text-2xl font-bold text-white">
+                    Statement Classifier
+                </h2>
+
+                <p class="mt-1 text-sm text-slate-400">
+                    Upload financial statements or automatically process
+                    statement PDFs received through Gmail.
+                </p>
+
+            </div>
+
+
+            <!-- Statistics -->
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+
+                <!-- Processed -->
+
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+
+                    <div class="flex items-center justify-between">
+
+                        <div>
+
+                            <p class="text-xs uppercase tracking-wider text-slate-500">
+                                Processed Statements
+                            </p>
+
+                            <p
+                                id="processedCount"
+                                class="mt-2 text-3xl font-bold text-white"
+                            >
+                                0
+                            </p>
+
+                        </div>
+
+                        <div class="w-11 h-11 rounded-lg bg-indigo-500/10 flex items-center justify-center">
+
+                            <svg
+                                class="w-6 h-6 text-indigo-400"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M9 12h6m-6 4h6M7 3h8l4 4v12a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2z"
+                                />
+                            </svg>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Gmail -->
+
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+
+                    <div class="flex items-center justify-between">
+
+                        <div>
+
+                            <p class="text-xs uppercase tracking-wider text-slate-500">
+                                Gmail Detection
+                            </p>
+
+                            <p
+                                id="gmailStatus"
+                                class="mt-2 text-xl font-bold text-white"
+                            >
+                                Checking...
+                            </p>
+
+                        </div>
+
+                        <div class="w-11 h-11 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+
+                            <svg
+                                class="w-6 h-6 text-emerald-400"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M3 8l9 6 9-6M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                                />
+                            </svg>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- API -->
+
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+
+                    <div class="flex items-center justify-between">
+
+                        <div>
+
+                            <p class="text-xs uppercase tracking-wider text-slate-500">
+                                API Status
+                            </p>
+
+                            <p
+                                id="apiStatus"
+                                class="mt-2 text-xl font-bold text-white"
+                            >
+                                Checking...
+                            </p>
+
+                        </div>
+
+                        <div class="w-11 h-11 rounded-lg bg-blue-500/10 flex items-center justify-center">
+
+                            <svg
+                                class="w-6 h-6 text-blue-400"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M8 9l3 3-3 3m5 0h3M5 5h14a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z"
+                                />
+                            </svg>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Quick actions -->
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+
+                <!-- Upload card -->
+
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-6">
+
+                    <div class="flex items-start justify-between mb-5">
+
+                        <div>
+
+                            <h3 class="font-semibold text-white">
+                                Classify a Statement
+                            </h3>
+
+                            <p class="text-sm text-slate-500 mt-1">
+                                Upload a PDF for instant classification.
+                            </p>
+
+                        </div>
+
+                        <div class="w-10 h-10 rounded-lg bg-indigo-500/10 flex items-center justify-center">
+
+                            <svg
+                                class="w-5 h-5 text-indigo-400"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1M8 10l4-4 4 4M12 6v10"
+                                />
+                            </svg>
+
+                        </div>
+
+                    </div>
+
+
+                    <button
+                        onclick="showSection('classifier')"
+                        class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3 px-4 rounded-lg transition"
+                    >
+                        Upload PDF
+                    </button>
+
+                </div>
+
+
+                <!-- Gmail card -->
+
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-6">
+
+                    <div class="flex items-start justify-between mb-5">
+
+                        <div>
+
+                            <h3 class="font-semibold text-white">
+                                Gmail Auto-Detection
+                            </h3>
+
+                            <p class="text-sm text-slate-500 mt-1">
+                                View statements automatically detected from Gmail.
+                            </p>
+
+                        </div>
+
+                        <div class="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+
+                            <svg
+                                class="w-5 h-5 text-emerald-400"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M3 8l9 6 9-6M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                                />
+                            </svg>
+
+                        </div>
+
+                    </div>
+
+
+                    <button
+                        onclick="showSection('gmail')"
+                        class="w-full bg-slate-800 hover:bg-slate-700 text-white font-medium py-3 px-4 rounded-lg transition border border-slate-700"
+                    >
+                        View Gmail Statements
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- Recent statements -->
+
+            <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+
+                <div class="p-5 border-b border-slate-800 flex items-center justify-between">
+
+                    <div>
+
+                        <h3 class="font-semibold text-white">
+                            Recent Statements
+                        </h3>
+
+                        <p class="text-xs text-slate-500 mt-1">
+                            Recently processed Gmail statements
+                        </p>
+
+                    </div>
+
+                    <button
+                        onclick="loadProcessedStatements()"
+                        class="text-xs text-indigo-400 hover:text-indigo-300"
+                    >
+                        Refresh
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="recentStatements"
+                    class="divide-y divide-slate-800"
+                >
+
+                    <div class="p-8 text-center text-sm text-slate-500">
+                        Loading statements...
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ====================================================
+             CLASSIFIER SECTION
+        ==================================================== -->
+
+        <section
+            id="section-classifier"
+            class="app-section hidden space-y-6"
+        >
+
+            <div>
+
+                <h2 class="text-2xl font-bold text-white">
+                    Classify Statement
+                </h2>
+
+                <p class="mt-1 text-sm text-slate-400">
+                    Upload a PDF bank or financial statement.
+                </p>
+
+            </div>
+
+
+            <!-- Upload area -->
+
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6">
+
+                <form id="uploadForm">
+
+                    <label
+                        id="dropZone"
+                        for="pdfFile"
+                        class="block border-2 border-dashed border-slate-700 rounded-xl p-10 text-center cursor-pointer hover:border-indigo-500/60 hover:bg-indigo-500/5 transition"
+                    >
+
+                        <input
+                            id="pdfFile"
+                            name="file"
+                            type="file"
+                            accept=".pdf,application/pdf"
+                            class="hidden"
+                        >
+
+                        <div class="mx-auto w-14 h-14 rounded-full bg-indigo-500/10 flex items-center justify-center">
+
+                            <svg
+                                class="w-7 h-7 text-indigo-400"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1M8 10l4-4 4 4M12 6v10"
+                                />
+                            </svg>
+
+                        </div>
+
+                        <p class="mt-4 font-medium text-slate-200">
+                            Drop your PDF here
+                        </p>
+
+                        <p class="mt-1 text-sm text-slate-500">
+                            or click to browse your computer
+                        </p>
+
+                        <p
+                            id="selectedFile"
+                            class="mt-4 text-xs text-indigo-400 hidden"
+                        ></p>
+
+                    </label>
+
+
+                    <div class="mt-5 flex justify-end">
+
+                        <button
+                            id="classifyButton"
+                            type="submit"
+                            class="inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-700 disabled:text-slate-500 text-white font-medium px-5 py-2.5 rounded-lg transition"
+                        >
+                            <span id="classifyButtonSpinner" class="spinner hidden"></span>
+
+                            <span id="classifyButtonText">
+                                Classify Statement
+                            </span>
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+
+            <!-- Error -->
+
+            <div
+                id="uploadError"
+                class="hidden bg-red-500/10 border border-red-500/20 text-red-300 rounded-xl p-4 text-sm"
+            ></div>
+
+
+            <!-- Classification result -->
+
+            <div
+                id="classificationResult"
+                class="hidden bg-slate-900 border border-slate-800 rounded-xl overflow-hidden"
+            >
+
+                <div class="p-5 border-b border-slate-800">
+
+                    <div class="flex items-center justify-between">
+
+                        <div>
+
+                            <h3 class="font-semibold text-white">
+                                Classification Result
+                            </h3>
+
+                            <p
+                                id="resultFilename"
+                                class="text-xs text-slate-500 mt-1"
+                            ></p>
+
+                        </div>
+
+                        <span
+                            id="resultType"
+                            class="px-3 py-1.5 rounded-full bg-indigo-500/10 text-indigo-400 text-xs font-semibold"
+                        ></span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="p-5">
+
+                    <div>
+
+                        <h4 class="text-xs uppercase tracking-wider text-slate-500 mb-2">
+                            Extracted Data
+                        </h4>
+
+                        <pre
+                            id="resultData"
+                            class="bg-slate-950 border border-slate-800 rounded-lg p-4 overflow-x-auto text-xs text-slate-300"
+                        ></pre>
+
+                    </div>
+
+
+                    <div class="mt-5">
+
+                        <h4 class="text-xs uppercase tracking-wider text-slate-500 mb-2">
+                            Text Preview
+                        </h4>
+
+                        <div
+                            id="resultText"
+                            class="bg-slate-950 border border-slate-800 rounded-lg p-4 text-sm text-slate-400 whitespace-pre-wrap max-h-60 overflow-y-auto scrollbar-thin"
+                        ></div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ====================================================
+             GMAIL SECTION
+        ==================================================== -->
+
+        <section
+            id="section-gmail"
+            class="app-section hidden space-y-6"
+        >
+
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+
+                <div>
+
+                    <h2 class="text-2xl font-bold text-white">
+                        Gmail Statements
+                    </h2>
+
+                    <p class="mt-1 text-sm text-slate-400">
+                        Statements automatically detected and classified from Gmail.
+                    </p>
+
+                </div>
+
+                <button
+                    onclick="loadProcessedStatements()"
+                    class="inline-flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white px-4 py-2.5 rounded-lg text-sm transition"
+                >
+
+                    <svg
+                        class="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M4 4v5h5M20 20v-5h-5M5.05 15A7 7 0 0017.95 9M18.95 9A7 7 0 006.05 15"
+                        />
+                    </svg>
+
+                    Refresh
+                </button>
+
+            </div>
+
+
+            <!-- Gmail status -->
+
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+
+                <div class="flex items-center gap-3">
+
+                    <span
+                        id="gmailPageDot"
+                        class="w-3 h-3 rounded-full bg-slate-500"
+                    ></span>
+
+                    <div>
+
+                        <p
+                            id="gmailPageStatus"
+                            class="font-medium text-white"
+                        >
+                            Checking Gmail detection...
+                        </p>
+
+                        <p class="text-xs text-slate-500 mt-1">
+                            Status is provided by the FastAPI health endpoint.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Gmail table -->
+
+            <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+
+                <div
+                    id="gmailStatementsList"
+                    class="divide-y divide-slate-800"
+                >
+
+                    <div class="p-8 text-center text-sm text-slate-500">
+                        Loading Gmail statements...
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- ========================================================
+         FOOTER
+    ========================================================= -->
+
+    <footer class="border-t border-slate-800 px-6 py-4 text-xs text-slate-500">
+
+        <div class="flex flex-col sm:flex-row justify-between gap-2">
+
+            <span>
+                Statement Classifier
+            </span>
+
+            <span>
+                FastAPI backend • Local development
+            </span>
+
+        </div>
+
+    </footer>
+
+</div>
+
+
+<!-- ============================================================
+     TOAST
+============================================================ -->
+
+<div
+    id="toast"
+    class="fixed right-4 bottom-4 z-50 hidden"
+>
+
+    <div
+        id="toastContent"
+        class="bg-slate-800 border border-slate-700 rounded-lg shadow-xl px-4 py-3 text-sm"
+    ></div>
+
+</div>
+
+
+<!-- ============================================================
+     JAVASCRIPT
+============================================================ -->
+
+<script>
+
+    // ==========================================================
+    // Configuration
+    // ==========================================================
+
+    const API_BASE = "/api/v1";
+
+    const API_ENDPOINTS = {
+        health: "/health",
+        classify: `${API_BASE}/classify-statement`,
+        processedStatements: `${API_BASE}/processed-statements`
+    };
+
+
+    // ==========================================================
+    // DOM helpers
+    // ==========================================================
+
+    function $(id) {
+        return document.getElementById(id);
+    }
+
+
+    // ==========================================================
+    // Mobile sidebar
+    // ==========================================================
+
+    function openMobileSidebar() {
+
+        $("mobileSidebar").classList.remove(
+            "-translate-x-full"
+        );
+
+        $("mobileOverlay").classList.remove(
+            "hidden"
+        );
+    }
+
+
+    function closeMobileSidebar() {
+
+        $("mobileSidebar").classList.add(
+            "-translate-x-full"
+        );
+
+        $("mobileOverlay").classList.add(
+            "hidden"
+        );
+    }
+
+
+    // ==========================================================
+    // Section navigation
+    // ==========================================================
+
+    function showSection(section) {
+
+        document.querySelectorAll(
+            ".app-section"
+        ).forEach(element => {
+            element.classList.add("hidden");
+        });
+
+        const selectedSection = $(
+            `section-${section}`
+        );
+
+        if (selectedSection) {
+            selectedSection.classList.remove("hidden");
+        }
+
+
+        // Update navigation state
+
+        document.querySelectorAll(
+            ".nav-item"
+        ).forEach(item => {
+
+            const isActive =
+                item.dataset.section === section;
+
+            item.classList.toggle(
+                "bg-indigo-600/15",
+                isActive
+            );
+
+            item.classList.toggle(
+                "text-indigo-400",
+                isActive
+            );
+
+            item.classList.toggle(
+                "text-slate-400",
+                !isActive
+            );
+        });
+
+
+        // Update title
+
+        const titles = {
+            dashboard: "Dashboard",
+            classifier: "Classify Statement",
+            gmail: "Gmail Statements"
+        };
+
+        $("pageTitle").textContent =
+            titles[section] || "Dashboard";
+
+
+        // Load data when appropriate
+
+        if (section === "gmail") {
+            loadProcessedStatements();
+        }
+    }
+
+
+    // ==========================================================
+    // Toast notifications
+    // ==========================================================
+
+    let toastTimer = null;
+
+    function showToast(
+        message,
+        type = "info"
+    ) {
+
+        const toast = $("toast");
+        const content = $("toastContent");
+
+        content.textContent = message;
+
+        content.className =
+            "bg-slate-800 border rounded-lg shadow-xl px-4 py-3 text-sm";
+
+
+        if (type === "success") {
+            content.classList.add(
+                "border-emerald-500/30",
+                "text-emerald-300"
+            );
+        }
+        else if (type === "error") {
+            content.classList.add(
+                "border-red-500/30",
+                "text-red-300"
+            );
+        }
+        else {
+            content.classList.add(
+                "border-slate-700",
+                "text-slate-200"
+            );
+        }
+
+
+        toast.classList.remove("hidden");
+
+        clearTimeout(toastTimer);
+
+        toastTimer = setTimeout(() => {
+            toast.classList.add("hidden");
+        }, 3500);
+    }
+
+
+    // ==========================================================
+    // Health check
+    // ==========================================================
+
+    async function checkHealth() {
+
+        try {
+
+            const response = await fetch(
+                API_ENDPOINTS.health,
+                {
+                    method: "GET",
+                    headers: {
+                        "Accept": "application/json"
+                    },
+                    cache: "no-store"
+                }
+            );
+
+
+            if (!response.ok) {
+                throw new Error(
+                    `Health check failed: ${response.status}`
+                );
+            }
+
+
+            const data =
+                await response.json();
+
+
+            // API status
+
+            $("apiStatus").textContent =
+                "Healthy";
+
+            $("apiStatus").className =
+                "mt-2 text-xl font-bold text-emerald-400";
+
+
+            $("systemStatusDot").className =
+                "w-2 h-2 rounded-full bg-emerald-400";
+
+            $("systemStatusText").textContent =
+                "API online";
+
+
+            $("sidebarStatus").textContent =
+                "System online";
+
+
+            // Gmail status
+
+            const gmailEnabled =
+                Boolean(
+                    data.gmail_auto_detection
+                );
+
+
+            updateGmailStatus(
+                gmailEnabled
+            );
+
+
+            $("processedCount").textContent =
+                data.processed_statements ?? 0;
+
+
+        }
+        catch (error) {
+
+            console.error(
+                "Health check error:",
+                error
+            );
+
+
+            $("apiStatus").textContent =
+                "Offline";
+
+            $("apiStatus").className =
+                "mt-2 text-xl font-bold text-red-400";
+
+
+            $("systemStatusDot").className =
+                "w-2 h-2 rounded-full bg-red-400";
+
+            $("systemStatusText").textContent =
+                "API unavailable";
+
+
+            $("sidebarStatus").textContent =
+                "API unavailable";
+
+
+            $("gmailStatus").textContent =
+                "Unavailable";
+
+            $("gmailStatus").className =
+                "mt-2 text-xl font-bold text-red-400";
+        }
+    }
+
+
+    // ==========================================================
+    // Gmail status
+    // ==========================================================
+
+    function updateGmailStatus(enabled) {
+
+        if (enabled) {
+
+            $("gmailStatus").textContent =
+                "Enabled";
+
+            $("gmailStatus").className =
+                "mt-2 text-xl font-bold text-emerald-400";
+
+
+            $("gmailPageStatus").textContent =
+                "Gmail auto-detection is enabled";
+
+            $("gmailPageDot").className =
+                "w-3 h-3 rounded-full bg-emerald-400";
+
+        }
+        else {
+
+            $("gmailStatus").textContent =
+                "Disabled";
+
+            $("gmailStatus").className =
+                "mt-2 text-xl font-bold text-amber-400";
+
+
+            $("gmailPageStatus").textContent =
+                "Gmail auto-detection is disabled";
+
+            $("gmailPageDot").className =
+                "w-3 h-3 rounded-full bg-amber-400";
+        }
+    }
+
+
+    // ==========================================================
+    // File selection
+    // ==========================================================
+
+    $("pdfFile").addEventListener(
+        "change",
+        handleFileSelection
+    );
+
+
+    function handleFileSelection(event) {
+
+        const file =
+            event.target.files[0];
+
+        const selectedFile =
+            $("selectedFile");
+
+
+        if (!file) {
+
+            selectedFile.classList.add(
+                "hidden"
+            );
+
+            return;
+        }
+
+
+        if (
+            !file.name
+                .toLowerCase()
+                .endsWith(".pdf")
+        ) {
+
+            selectedFile.textContent =
+                "Please select a PDF file.";
+
+            selectedFile.className =
+                "mt-4 text-xs text-red-400";
+
+            return;
+        }
+
+
+        selectedFile.textContent =
+            `${file.name} • ${formatBytes(file.size)}`;
+
+        selectedFile.className =
+            "mt-4 text-xs text-emerald-400";
+    }
+
+
+    // ==========================================================
+    // Drag and drop
+    // ==========================================================
+
+    const dropZone =
+        $("dropZone");
+
+
+    [
+        "dragenter",
+        "dragover"
+    ].forEach(eventName => {
+
+        dropZone.addEventListener(
+            eventName,
+            event => {
+
+                event.preventDefault();
+
+                dropZone.classList.add(
+                    "drop-zone-active"
+                );
+            }
+        );
+    });
+
+
+    [
+        "dragleave",
+        "drop"
+    ].forEach(eventName => {
+
+        dropZone.addEventListener(
+            eventName,
+            event => {
+
+                event.preventDefault();
+
+                dropZone.classList.remove(
+                    "drop-zone-active"
+                );
+            }
+        );
+    });
+
+
+    dropZone.addEventListener(
+        "drop",
+        event => {
+
+            const files =
+                event.dataTransfer.files;
+
+            if (!files.length) {
+                return;
+            }
+
+            $("pdfFile").files =
+                files;
+
+            handleFileSelection({
+                target: {
+                    files: files
+                }
+            });
+        }
+    );
+
+
+    // ==========================================================
+    // Classification form
+    // ==========================================================
+
+    $("uploadForm").addEventListener(
+        "submit",
+        classifyStatement
+    );
+
+
+    async function classifyStatement(event) {
+
+        event.preventDefault();
+
+
+        const file =
+            $("pdfFile").files[0];
+
+
+        if (!file) {
+
+            showToast(
+                "Please select a PDF file.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        if (
+            !file.name
+                .toLowerCase()
+                .endsWith(".pdf")
+        ) {
+
+            showToast(
+                "Only PDF files are supported.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        setClassifyLoading(
+            true
+        );
+
+
+        $("uploadError").classList.add(
+            "hidden"
+        );
+
+        $("classificationResult").classList.add(
+            "hidden"
+        );
+
+
+        try {
+
+            const formData =
+                new FormData();
+
+            formData.append(
+                "file",
+                file
+            );
+
+
+            const response =
+                await fetch(
+                    API_ENDPOINTS.classify,
+                    {
+                        method: "POST",
+                        body: formData
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.detail ||
+                    "Failed to classify the statement."
+                );
+            }
+
+
+            displayClassificationResult(
+                data
+            );
+
+
+            showToast(
+                "Statement classified successfully.",
+                "success"
+            );
+
+
+            await loadProcessedStatements();
+
+
+        }
+        catch (error) {
+
+            console.error(
+                "Classification error:",
+                error
+            );
+
+
+            $("uploadError").textContent =
+                error.message ||
+                "An unexpected error occurred.";
+
+
+            $("uploadError").classList.remove(
+                "hidden"
+            );
+
+
+            showToast(
+                error.message ||
+                "Classification failed.",
+                "error"
+            );
+
+        }
+        finally {
+
+            setClassifyLoading(
+                false
+            );
+        }
+    }
+
+
+    // ==========================================================
+    // Classification loading state
+    // ==========================================================
+
+    function setClassifyLoading(
+        loading
+    ) {
+
+        const button =
+            $("classifyButton");
+
+        const spinner =
+            $("classifyButtonSpinner");
+
+        const text =
+            $("classifyButtonText");
+
+
+        button.disabled =
+            loading;
+
+
+        if (loading) {
+
+            spinner.classList.remove(
+                "hidden"
+            );
+
+            text.textContent =
+                "Processing...";
+
+        }
+        else {
+
+            spinner.classList.add(
+                "hidden"
+            );
+
+            text.textContent =
+                "Classify Statement";
+        }
+    }
+
+
+    // ==========================================================
+    // Display classification result
+    // ==========================================================
+
+    function displayClassificationResult(
+        data
+    ) {
+
+        $("classificationResult")
+            .classList.remove("hidden");
+
+
+        $("resultFilename")
+            .textContent =
+            data.filename ||
+            "Unknown file";
+
+
+        $("resultType")
+            .textContent =
+            data.doc_type ||
+            "Unknown";
+
+
+        $("resultData")
+            .textContent =
+            JSON.stringify(
+                data.extracted_data || {},
+                null,
+                2
+            );
+
+
+        $("resultText")
+            .textContent =
+            data.raw_text_snippet ||
+            "No extracted text preview available.";
+
+
+        $("classificationResult")
+            .scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+    }
+
+
+    // ==========================================================
+    // Load processed Gmail statements
+    // ==========================================================
+
+    async function loadProcessedStatements() {
+
+        const containers = [
+            $("recentStatements"),
+            $("gmailStatementsList")
+        ];
+
+
+        containers.forEach(container => {
+
+            if (container) {
+
+                container.innerHTML = `
+                    <div class="p-8 text-center text-sm text-slate-500">
+                        Loading statements...
+                    </div>
+                `;
+            }
+        });
+
+
+        try {
+
+            const response =
+                await fetch(
+                    API_ENDPOINTS.processedStatements,
+                    {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/json"
+                        },
+                        cache: "no-store"
+                    }
+                );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    `Request failed: ${response.status}`
+                );
+            }
+
+
+            const data =
+                await response.json();
+
+
+            const statements =
+                Array.isArray(data.statements)
+                    ? data.statements
+                    : [];
+
+
+            $("processedCount").textContent =
+                data.count ??
+                statements.length;
+
+
+            renderRecentStatements(
+                statements
+            );
+
+
+            renderGmailStatements(
+                statements
+            );
+
+
+        }
+        catch (error) {
+
+            console.error(
+                "Failed to load statements:",
+                error
+            );
+
+
+            renderError(
+                $("recentStatements"),
+                "Unable to load processed statements."
+            );
+
+
+            renderError(
+                $("gmailStatementsList"),
+                "Unable to load Gmail statements."
+            );
+        }
+    }
+
+
+    // ==========================================================
+    // Recent statements
+    // ==========================================================
+
+    function renderRecentStatements(
+        statements
+    ) {
+
+        const container =
+            $("recentStatements");
+
+
+        if (!statements.length) {
+
+            container.innerHTML = `
+                <div class="p-8 text-center">
+                    <div class="mx-auto w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center">
+                        <svg
+                            class="w-6 h-6 text-slate-500"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M9 12h6m-6 4h6M7 3h8l4 4v12a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2z"
+                            />
+                        </svg>
+                    </div>
+
+                    <p class="mt-3 text-sm text-slate-400">
+                        No processed Gmail statements yet.
+                    </p>
+
+                    <p class="mt-1 text-xs text-slate-600">
+                        New statements will appear here automatically.
+                    </p>
+                </div>
+            `;
+
+            return;
+        }
+
+
+        container.innerHTML =
+            statements
+                .slice(0, 5)
+                .map(
+                    statement =>
+                        createStatementRow(
+                            statement
+                        )
+                )
+                .join("");
+    }
+
+
+    // ==========================================================
+    // Gmail statements
+    // ==========================================================
+
+    function renderGmailStatements(
+        statements
+    ) {
+
+        const container =
+            $("gmailStatementsList");
+
+
+        if (!statements.length) {
+
+            container.innerHTML = `
+                <div class="p-10 text-center">
+
+                    <div class="mx-auto w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center">
+
+                        <svg
+                            class="w-6 h-6 text-slate-500"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M3 8l9 6 9-6M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                            />
+                        </svg>
+
+                    </div>
+
+                    <p class="mt-3 text-sm text-slate-400">
+                        No Gmail statements processed yet.
+                    </p>
+
+                </div>
+            `;
+
+            return;
+        }
+
+
+        container.innerHTML =
+            statements
+                .map(
+                    statement =>
+                        createStatementRow(
+                            statement,
+                            true
+                        )
+                )
+                .join("");
+    }
+
+
+    // ==========================================================
+    // Statement row
+    // ==========================================================
+
+    function createStatementRow(
+        statement,
+        detailed = false
+    ) {
+
+        const filename =
+            escapeHtml(
+                statement.filename ||
+                "Unknown file"
+            );
+
+
+        const sender =
+            escapeHtml(
+                statement.sender ||
+                "Unknown sender"
+            );
+
+
+        const subject =
+            escapeHtml(
+                statement.subject ||
+                "No subject"
+            );
+
+
+        const docType =
+            escapeHtml(
+                statement.doc_type ||
+                "Unknown"
+            );
+
+
+        return `
+            <div class="p-5 hover:bg-slate-800/40 transition">
+
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+
+                    <div class="flex items-start gap-3 min-w-0">
+
+                        <div class="w-10 h-10 shrink-0 rounded-lg bg-indigo-500/10 flex items-center justify-center">
+
+                            <svg
+                                class="w-5 h-5 text-indigo-400"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M7 3h8l4 4v12a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2z"
+                                />
+                            </svg>
+
+                        </div>
+
+
+                        <div class="min-w-0">
+
+                            <p class="font-medium text-sm text-slate-200 truncate">
+                                ${filename}
+                            </p>
+
+                            ${
+                                detailed
+                                ? `
+                                    <p class="text-xs text-slate-500 mt-1 truncate">
+                                        ${sender}
+                                    </p>
+
+                                    <p class="text-xs text-slate-600 mt-0.5 truncate">
+                                        ${subject}
+                                    </p>
+                                `
+                                : ""
+                            }
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="flex items-center gap-3 shrink-0">
+
+                        <span class="px-2.5 py-1 rounded-full bg-indigo-500/10 text-indigo-400 text-xs font-medium">
+                            ${docType}
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+        `;
+    }
+
+
+    // ==========================================================
+    // Render error
+    // ==========================================================
+
+    function renderError(
+        container,
+        message
+    ) {
+
+        if (!container) {
+            return;
+        }
+
+
+        container.innerHTML = `
+            <div class="p-8 text-center">
+
+                <p class="text-sm text-red-400">
+                    ${escapeHtml(message)}
+                </p>
+
+            </div>
+        `;
+    }
+
+
+    // ==========================================================
+    // Format file size
+    // ==========================================================
+
+    function formatBytes(
+        bytes
+    ) {
+
+        if (!bytes) {
+            return "0 Bytes";
+        }
+
+
+        const units = [
+            "Bytes",
+            "KB",
+            "MB",
+            "GB"
+        ];
+
+
+        const index =
+            Math.floor(
+                Math.log(bytes) /
+                Math.log(1024)
+            );
+
+
+        return `${(
+            bytes /
+            Math.pow(1024, index)
+        ).toFixed(index === 0 ? 0 : 1)} ${units[index]}`;
+    }
+
+
+    // ==========================================================
+    // Escape HTML
+    // ==========================================================
+
+    function escapeHtml(
+        value
+    ) {
+
+        const div =
+            document.createElement(
+                "div"
+            );
+
+        div.textContent =
+            String(value ?? "");
+
+        return div.innerHTML;
+    }
+
+
+    // ==========================================================
+    // Refresh dashboard
+    // ==========================================================
+
+    async function refreshAll() {
+
+        await Promise.all([
+            checkHealth(),
+            loadProcessedStatements()
+        ]);
+
+        showToast(
+            "Dashboard refreshed.",
+            "success"
+        );
+    }
+
+
+    // ==========================================================
+    // Initial application startup
+    // ==========================================================
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        async () => {
+
+            showSection(
+                "dashboard"
+            );
+
+            await Promise.all([
+                checkHealth(),
+                loadProcessedStatements()
+            ]);
+
+        }
+    );
+
+
+    // ==========================================================
+    // Automatic refresh
+    //
+    // Refresh Gmail data every 30 seconds.
+    // ==========================================================
+
+    setInterval(
+        async () => {
+
+            await checkHealth();
+            await loadProcessedStatements();
+
+        },
+        30000
+    );
+
+</script>
+
+</body>
+</html>
